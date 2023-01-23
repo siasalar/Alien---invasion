@@ -18,7 +18,15 @@ func ReadCityMapFile(path string) (CityMap, error) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
+		if len(line) == 0 || strings.TrimSpace(line) == "" {
+			continue
+		}
+
 		parts := strings.Split(line, " ")
+		if len(parts) < 1 {
+			continue
+		}
+
 		cityName := parts[0]
 
 		// Create the city if it doesn't exist yet
