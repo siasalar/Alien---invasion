@@ -5,7 +5,8 @@ import (
 )
 
 const (
-	mapFilePath = "map.txt"
+	mapFilePath         = "map.txt"
+	alienMovementThresh = 10000
 )
 
 func main() {
@@ -19,5 +20,5 @@ func main() {
 		panic(err)
 	}
 
-	invasion.Run(cityMap, numAliens)
+	invasion.Run(cityMap, numAliens, alienMovementThresh)
 }
