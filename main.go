@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/siasalar/Alien-invasion/alieninvasion"
+	"github.com/siasalar/alien-invasion/invasion"
 )
 
 const (
@@ -9,5 +9,15 @@ const (
 )
 
 func main() {
-	alieninvasion.Run(mapFilePath)
+	numAliens, err := invasion.GetNumberOfAliens()
+	if err != nil {
+		panic(err)
+	}
+
+	cityMap, err := invasion.ReadCityMapFile(mapFilePath)
+	if err != nil {
+		panic(err)
+	}
+
+	invasion.Run(cityMap, numAliens)
 }

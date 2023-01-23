@@ -1,11 +1,11 @@
-package alieninvasion
+package invasion
 
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -15,8 +15,8 @@ type City struct {
 	North, South, East, West *City
 }
 
-// Map represents the alien invasion map
-type Map map[string]*City
+// CityMap represents the alien invasion map
+type CityMap map[string]*City
 
 // Alien represents an alien in the alien invasion simulation
 type Alien struct {
@@ -24,38 +24,16 @@ type Alien struct {
 	Moves       int
 }
 
-func Run(mapFilePath string) {
-	// Read in the map from a file
-	file, err := os.Open(mapFilePath)
-	if err != nil {
-		fmt.Println("Error reading map file:", err)
-		return
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-
-	m := createCityMap(scanner)
-
-	// Get the number of aliens from the command line
-	if len(os.Args) < 2 {
-		fmt.Println("Please provide the number of aliens as a command line argument")
-		return
-	}
-	numAliens, err := strconv.Atoi(os.Args[1])
-	if err != nil {
-		fmt.Println("Invalid number of aliens:", os.Args[1])
-		return
-	}
+func Run(cityMap CityMap, numAliens int) {
 
 	// Create the aliens and randomly place them on the map
 	aliens := make([]*Alien, numAliens)
 	for i := 0; i < numAliens; i++ {
-		cityNames := make([]string, 0, len(m))
-		for cityName := range m {
+		cityNames := make([]string, 0, len(cityMap))
+		for cityName := range cityMap {
 			cityNames = append(cityNames, cityName)
 		}
-		startCity := m[cityNames[rand.Intn(len(cityNames))]]
+		startCity := cityMap[cityNames[rand.Intn(len(cityNames))]]
 		aliens[i] = &Alien{CurrentCity: startCity, Moves: 0}
 	}
 
@@ -64,13 +42,13 @@ func Run(mapFilePath string) {
 		// Move each alien randomly
 		for _, alien := range aliens {
 			if alien.Moves >= 10000 {
-				fmt.Println("Alien reached maximum moves, ending simulation")
+				log.Println("Alien reached maximum moves, ending simulation")
 				return
 			}
 			alien.Moves++
 
 			// Get a list of possible directions to move
-			possibleDirections := make([]*City, 0, 4)
+			possibleDirections := make([]*City, 0)
 			if alien.CurrentCity.North != nil {
 				possibleDirections = append(possibleDirections, alien.CurrentCity.North)
 			}
@@ -85,12 +63,13 @@ func Run(mapFilePath string) {
 			}
 
 			// Move the alien to a random direction
-			if len(possibleDirections) > 0 {
-				nextCity := possibleDirections[rand.Intn(len(possibleDirections))]
-				alien.CurrentCity = nextCity
-			} else {
-				fmt.Println("Alien is trapped and cannot move")
+			if len(possibleDirections) < 1 {
+				log.Println("Alien is trapped and cannot move")
+				continue
 			}
+
+			nextCity := possibleDirections[rand.Intn(len(possibleDirections))]
+			alien.CurrentCity = nextCity
 		}
 
 		// Check for alien fights
@@ -98,12 +77,12 @@ func Run(mapFilePath string) {
 			for j := i + 1; j < numAliens; j++ {
 				if aliens[i].CurrentCity == aliens[j].CurrentCity {
 					fmt.Printf("Alien %d and Alien %d fought at %s, destroying the city\n", i, j, aliens[i].CurrentCity.Name)
-					delete(m, aliens[i].CurrentCity.Name)
+					delete(cityMap, aliens[i].CurrentCity.Name)
 					aliens[i].CurrentCity = nil
 					aliens[j].CurrentCity = nil
 					numAliens -= 2
 					if numAliens == 0 {
-						fmt.Println("All aliens have been destroyed, ending simulation")
+						log.Println("All aliens have been destroyed, ending simulation")
 						return
 					}
 				}
@@ -112,19 +91,71 @@ func Run(mapFilePath string) {
 	}
 }
 
-// createCityMap parse the map file and create the city map
-func createCityMap(scanner *bufio.Scanner) Map {
-	m := make(Map)
+//// createCityMap parse the map file and create the city map
+//func createCityMap(scanner *bufio.Scanner) CityMap {
+//	m := make(CityMap)
+//	for scanner.Scan() {
+//		line := scanner.Text()
+//		parts := strings.Split(line, " ")
+//		cityName := parts[0]
+//
+//		// Create the city if it doesn't exist yet
+//		city, ok := m[cityName]
+//		if !ok {
+//			city = &City{Name: cityName}
+//			m[cityName] = city
+//		}
+//
+//		// Parse the city's connections
+//		for _, connection := range parts[1:] {
+//			dirAndCity := strings.Split(connection, "=")
+//			direction := dirAndCity[0]
+//			connectedCityName := dirAndCity[1]
+//
+//			// Create the connected city if it doesn't exist yet
+//			connectedCity, ok := m[connectedCityName]
+//			if !ok {
+//				connectedCity = &City{Name: connectedCityName}
+//				m[connectedCityName] = connectedCity
+//			}
+//
+//			// Add the connection to the current city
+//			switch direction {
+//			case "north":
+//				city.North = connectedCity
+//			case "south":
+//				city.South = connectedCity
+//			case "east":
+//				city.East = connectedCity
+//			case "west":
+//				city.West = connectedCity
+//			}
+//		}
+//	}
+//
+//	return m
+//}
+
+// ReadCityMapFile parse the map file and create the city map
+func ReadCityMapFile(path string) (CityMap, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+
+	scanner := bufio.NewScanner(file)
+	cityMap := make(CityMap)
+
 	for scanner.Scan() {
 		line := scanner.Text()
 		parts := strings.Split(line, " ")
 		cityName := parts[0]
 
 		// Create the city if it doesn't exist yet
-		city, ok := m[cityName]
+		city, ok := cityMap[cityName]
 		if !ok {
 			city = &City{Name: cityName}
-			m[cityName] = city
+			cityMap[cityName] = city
 		}
 
 		// Parse the city's connections
@@ -134,10 +165,10 @@ func createCityMap(scanner *bufio.Scanner) Map {
 			connectedCityName := dirAndCity[1]
 
 			// Create the connected city if it doesn't exist yet
-			connectedCity, ok := m[connectedCityName]
+			connectedCity, ok := cityMap[connectedCityName]
 			if !ok {
 				connectedCity = &City{Name: connectedCityName}
-				m[connectedCityName] = connectedCity
+				cityMap[connectedCityName] = connectedCity
 			}
 
 			// Add the connection to the current city
@@ -154,5 +185,5 @@ func createCityMap(scanner *bufio.Scanner) Map {
 		}
 	}
 
-	return m
+	return cityMap, nil
 }
