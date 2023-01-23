@@ -36,32 +36,38 @@ func ReadCityMapFile(path string) (CityMap, error) {
 			cityMap[cityName] = city
 		}
 
-		// Parse the city's connections
-		for _, connection := range parts[1:] {
-			dirAndCity := strings.Split(connection, "=")
-			direction := dirAndCity[0]
-			connectedCityName := dirAndCity[1]
-
-			// Create the connected city if it doesn't exist yet
-			connectedCity, ok := cityMap[connectedCityName]
-			if !ok {
-				connectedCity = &City{Name: connectedCityName}
-				cityMap[connectedCityName] = connectedCity
-			}
-
-			// Add the connection to the current city
-			switch direction {
-			case "north":
-				city.North = connectedCity
-			case "south":
-				city.South = connectedCity
-			case "east":
-				city.East = connectedCity
-			case "west":
-				city.West = connectedCity
-			}
-		}
+		parseCityConnections(parts, cityMap, city)
 	}
 
 	return cityMap, nil
+}
+
+var ParseCityConnections = parseCityConnections
+
+// parseCityConnections Parse the city's connections
+func parseCityConnections(parts []string, cityMap CityMap, city *City) {
+	for _, connection := range parts[1:] {
+		dirAndCity := strings.Split(connection, "=")
+		direction := dirAndCity[0]
+		connectedCityName := dirAndCity[1]
+
+		// Create the connected city if it doesn't exist yet
+		connectedCity, ok := cityMap[connectedCityName]
+		if !ok {
+			connectedCity = &City{Name: connectedCityName}
+			cityMap[connectedCityName] = connectedCity
+		}
+
+		// Add the connection to the current city
+		switch direction {
+		case "north":
+			city.North = connectedCity
+		case "south":
+			city.South = connectedCity
+		case "east":
+			city.East = connectedCity
+		case "west":
+			city.West = connectedCity
+		}
+	}
 }
