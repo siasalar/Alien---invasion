@@ -54,33 +54,24 @@ func Run(cityMap CityMap, numAliens, movementThresh int) {
 			alien.CurrentCity = nextCity
 		}
 
-		if checkForAlienFights(cityMap, numAliens, aliens) {
-			return
-		}
-	}
-}
-
-func checkForAlienFights(cityMap CityMap, numAliens int, aliens []*Alien) bool {
-	for i := 0; i < numAliens; i++ {
-		for j := i + 1; j < numAliens; j++ {
-			if aliens[i].CurrentCity == aliens[j].CurrentCity {
-				log.Printf("Alien %d and Alien %d fought at %s, destroying the city\n", i, j, aliens[i].CurrentCity.Name)
-				delete(cityMap, aliens[i].CurrentCity.Name)
-				aliens[i].CurrentCity = nil
-				aliens[j].CurrentCity = nil
-				numAliens -= 2
-				if numAliens == 0 {
-					log.Println("All aliens have been destroyed, ending simulation")
-					return true
+		// Check for alien fights
+		for i := 0; i < numAliens; i++ {
+			for j := i + 1; j < numAliens; j++ {
+				if aliens[i].CurrentCity == aliens[j].CurrentCity {
+					log.Printf("Alien %d and Alien %d fought at %s, destroying the city\n", i, j, aliens[i].CurrentCity.Name)
+					delete(cityMap, aliens[i].CurrentCity.Name)
+					aliens[i].CurrentCity = nil
+					aliens[j].CurrentCity = nil
+					numAliens -= 2
+					if numAliens == 0 {
+						log.Println("All aliens have been destroyed, ending simulation")
+						return
+					}
 				}
 			}
 		}
 	}
-
-	return false
 }
-
-var GetListOfPossibleDirections = getListOfPossibleDirections
 
 func getListOfPossibleDirections(alien *Alien) []*City {
 	possibleDirections := make([]*City, 0)

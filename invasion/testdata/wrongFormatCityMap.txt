@@ -1,0 +1,5 @@
+Fonorth=Barwest=Bazsouth=Qu-ux
+Barsouth=Foowest=Bee
+Bazeast=Foonorth=Qu-ux
+Qu-uxnorth=Bazsouth=Foo
+Beeeast=Bar

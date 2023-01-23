@@ -33,6 +33,7 @@ func TestGetNumberOfAliens(t *testing.T) {
 			expectedErr: fmt.Errorf("please provide the number of aliens as a command line argument"),
 		},
 	}
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			os.Args = tc.args
