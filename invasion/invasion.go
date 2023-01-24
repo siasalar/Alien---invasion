@@ -1,8 +1,9 @@
 package invasion
 
 import (
+	"crypto/rand"
 	"log"
-	"math/rand"
+	"math/big"
 )
 
 // City represents a city in the alien invasion map
@@ -23,12 +24,19 @@ type Alien struct {
 func Run(cityMap CityMap, numAliens, movementThresh int) {
 	// Create the aliens and randomly place them on the map
 	aliens := make([]*Alien, numAliens)
+
 	for i := 0; i < numAliens; i++ {
 		cityNames := make([]string, 0, len(cityMap))
 		for cityName := range cityMap {
 			cityNames = append(cityNames, cityName)
 		}
-		startCity := cityMap[cityNames[rand.Intn(len(cityNames))]]
+
+		randInt, err := rand.Int(rand.Reader, big.NewInt(int64(len(cityNames))))
+		if err != nil {
+			log.Printf("failed to generate random Int number: %v", err)
+			return
+		}
+		startCity := cityMap[cityNames[randInt.Int64()]]
 		aliens[i] = &Alien{CurrentCity: startCity, Moves: 0}
 	}
 
@@ -44,29 +52,38 @@ func Run(cityMap CityMap, numAliens, movementThresh int) {
 
 			possibleDirections := getListOfPossibleDirections(alien)
 
-			// Move the alien to a random direction
+			// Move the alien to a randInt direction
 			if len(possibleDirections) < 1 {
 				log.Println("Alien is trapped and cannot move")
 				continue
 			}
 
-			nextCity := possibleDirections[rand.Intn(len(possibleDirections))]
+			randInt, err := rand.Int(rand.Reader, big.NewInt(int64(len(possibleDirections))))
+			if err != nil {
+				log.Printf("failed to generate random Int number: %v", err)
+				return
+			}
+			nextCity := possibleDirections[randInt.Int64()]
+
 			alien.CurrentCity = nextCity
 		}
 
 		// Check for alien fights
 		for i := 0; i < numAliens; i++ {
 			for j := i + 1; j < numAliens; j++ {
-				if aliens[i].CurrentCity == aliens[j].CurrentCity {
-					log.Printf("Alien %d and Alien %d fought at %s, destroying the city\n", i, j, aliens[i].CurrentCity.Name)
-					delete(cityMap, aliens[i].CurrentCity.Name)
-					aliens[i].CurrentCity = nil
-					aliens[j].CurrentCity = nil
-					numAliens -= 2
-					if numAliens == 0 {
-						log.Println("All aliens have been destroyed, ending simulation")
-						return
-					}
+				if aliens[i].CurrentCity != aliens[j].CurrentCity {
+					continue
+				}
+
+				log.Printf("Alien %d and Alien %d fought at %s, destroying the city\n", i, j, aliens[i].CurrentCity.Name)
+				delete(cityMap, aliens[i].CurrentCity.Name)
+				aliens[i].CurrentCity = nil
+				aliens[j].CurrentCity = nil
+
+				numAliens -= 2
+				if numAliens == 0 {
+					log.Println("All aliens have been destroyed, ending simulation")
+					return
 				}
 			}
 		}
@@ -76,18 +93,21 @@ func Run(cityMap CityMap, numAliens, movementThresh int) {
 func getListOfPossibleDirections(alien *Alien) []*City {
 	possibleDirections := make([]*City, 0)
 
-	directions := map[string]*City{
-		"north": alien.CurrentCity.North,
-		"south": alien.CurrentCity.South,
-		"east":  alien.CurrentCity.East,
-		"west":  alien.CurrentCity.West,
+	if alien.CurrentCity.North != nil {
+		possibleDirections = append(possibleDirections, alien.CurrentCity.North)
 	}
 
-	for _, direction := range directions {
-		switch {
-		case direction != nil:
-			possibleDirections = append(possibleDirections, direction)
-		}
+	if alien.CurrentCity.South != nil {
+		possibleDirections = append(possibleDirections, alien.CurrentCity.South)
 	}
+
+	if alien.CurrentCity.East != nil {
+		possibleDirections = append(possibleDirections, alien.CurrentCity.East)
+	}
+
+	if alien.CurrentCity.West != nil {
+		possibleDirections = append(possibleDirections, alien.CurrentCity.West)
+	}
+
 	return possibleDirections
 }

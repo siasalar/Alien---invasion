@@ -2,9 +2,10 @@ package invasion
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetNumberOfAliens(t *testing.T) {

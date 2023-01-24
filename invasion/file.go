@@ -18,7 +18,7 @@ func ReadCityMapFile(path string) (CityMap, error) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		if len(line) == 0 || strings.TrimSpace(line) == "" {
+		if line == "" || strings.TrimSpace(line) == "" {
 			continue
 		}
 

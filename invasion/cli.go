@@ -7,9 +7,11 @@ import (
 	"strconv"
 )
 
+const commandLineArgumentsLen = 2
+
 // GetNumberOfAliens get the number of aliens from the command line
 func GetNumberOfAliens() (int, error) {
-	if len(os.Args) < 2 {
+	if len(os.Args) < commandLineArgumentsLen {
 		log.Println("Please provide the number of aliens as a command line argument")
 		return 0, fmt.Errorf("please provide the number of aliens as a command line argument")
 	}
