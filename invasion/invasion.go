@@ -36,6 +36,7 @@ func Run(cityMap CityMap, numAliens, movementThresh int) {
 			log.Printf("failed to generate random Int number: %v", err)
 			return
 		}
+
 		startCity := cityMap[cityNames[randInt.Int64()]]
 		aliens[i] = &Alien{CurrentCity: startCity, Moves: 0}
 	}
@@ -63,8 +64,8 @@ func Run(cityMap CityMap, numAliens, movementThresh int) {
 				log.Printf("failed to generate random Int number: %v", err)
 				return
 			}
-			nextCity := possibleDirections[randInt.Int64()]
 
+			nextCity := possibleDirections[randInt.Int64()]
 			alien.CurrentCity = nextCity
 		}
 
