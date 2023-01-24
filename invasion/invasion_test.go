@@ -1,40 +1,41 @@
 package invasion
 
 import (
-	"github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetListOfPossibleDirections(t *testing.T) {
 	testCases := []struct {
 		name     string
-		alien    Alien
+		alien    alien
 		worldMap WorldMap
 		want     []string
 	}{
 		{
 			name: "Test All Directions From CityA",
-			alien: Alien{
-				CurrentCity: City{
-					Name: "cityA",
+			alien: alien{
+				currentCity: city{
+					name: "cityA",
 				},
-				IsAlive: true,
+				isAlive: true,
 			},
 			worldMap: WorldMap{
-				"cityA": City{
-					Connections: map[string]string{
+				"cityA": city{
+					connections: map[string]string{
 						"north": "cityB",
 						"south": "cityC",
 					},
 				},
-				"cityB": City{
-					Connections: map[string]string{
+				"cityB": city{
+					connections: map[string]string{
 						"south": "cityA",
 					},
 				},
-				"cityC": City{
-					Connections: map[string]string{
+				"cityC": city{
+					connections: map[string]string{
 						"north": "cityA",
 					},
 				},
@@ -42,21 +43,21 @@ func TestGetListOfPossibleDirections(t *testing.T) {
 			want: []string{"north", "south"},
 		},
 		{
-			name: "Test Alien In CityB No Directions Exist",
-			alien: Alien{
-				CurrentCity: City{
-					Name: "cityB",
+			name: "Test alien In CityB No Directions Exist",
+			alien: alien{
+				currentCity: city{
+					name: "cityB",
 				},
-				IsAlive: true,
+				isAlive: true,
 			},
 			worldMap: WorldMap{
-				"cityA": City{
-					Connections: map[string]string{
+				"cityA": city{
+					connections: map[string]string{
 						"north": "cityB",
 					},
 				},
-				"cityB": City{
-					Connections: map[string]string{
+				"cityB": city{
+					connections: map[string]string{
 						"south": "cityA",
 					},
 				},
@@ -79,89 +80,89 @@ func TestUpdateWorldMap(t *testing.T) {
 	testCases := []struct {
 		name          string
 		worldMap      WorldMap
-		destroyedCity City
+		destroyedCity city
 		want          WorldMap
 	}{
 		{
 			name: "destroying cityA which is between cityB and cityC",
 			worldMap: WorldMap{
-				"cityA": City{
-					Name: "cityA",
-					Connections: map[string]string{
+				"cityA": city{
+					name: "cityA",
+					connections: map[string]string{
 						"north": "cityB",
 						"west":  "cityC",
 					},
 				},
-				"cityB": City{
-					Name: "cityB",
-					Connections: map[string]string{
+				"cityB": city{
+					name: "cityB",
+					connections: map[string]string{
 						"south": "cityA",
 					},
 				},
-				"cityC": City{
-					Name: "cityC",
-					Connections: map[string]string{
+				"cityC": city{
+					name: "cityC",
+					connections: map[string]string{
 						"east": "cityA",
 					},
 				},
 			},
-			destroyedCity: City{
-				Name: "cityA",
-				Connections: map[string]string{
+			destroyedCity: city{
+				name: "cityA",
+				connections: map[string]string{
 					"north": "cityB",
 					"west":  "cityC",
 				},
 			},
 			want: WorldMap{
-				"cityB": City{
-					Name:        "cityB",
-					Connections: map[string]string{},
+				"cityB": city{
+					name:        "cityB",
+					connections: map[string]string{},
 				},
-				"cityC": City{
-					Name:        "cityC",
-					Connections: map[string]string{},
+				"cityC": city{
+					name:        "cityC",
+					connections: map[string]string{},
 				},
 			},
 		},
 		{
 			name: "destroying CityB which is in the corner of the world",
 			worldMap: WorldMap{
-				"cityA": City{
-					Name: "cityA",
-					Connections: map[string]string{
+				"cityA": city{
+					name: "cityA",
+					connections: map[string]string{
 						"north": "cityB",
 						"west":  "cityC",
 					},
 				},
-				"cityB": City{
-					Name: "cityB",
-					Connections: map[string]string{
+				"cityB": city{
+					name: "cityB",
+					connections: map[string]string{
 						"south": "cityA",
 					},
 				},
-				"cityC": City{
-					Name: "cityC",
-					Connections: map[string]string{
+				"cityC": city{
+					name: "cityC",
+					connections: map[string]string{
 						"east": "cityA",
 					},
 				},
 			},
-			destroyedCity: City{
-				Name: "cityB",
-				Connections: map[string]string{
+			destroyedCity: city{
+				name: "cityB",
+				connections: map[string]string{
 					"south": "cityA",
 				},
 			},
 			want: WorldMap{
-				"cityA": City{
-					Name: "cityA",
-					Connections: map[string]string{
+				"cityA": city{
+					name: "cityA",
+					connections: map[string]string{
 						"west": "cityC",
 					},
 				},
-				"cityC": City{
-					Name: "cityC",
-					Connections: map[string]string{
+				"cityC": city{
+					name: "cityC",
+					connections: map[string]string{
 						"east": "cityA",
 					},
 				},

@@ -11,22 +11,22 @@ func PrintWorldMap(worldMap WorldMap) {
 	for cityName, connectedCity := range worldMap {
 		line := cityName
 
-		north, ok := connectedCity.Connections["north"]
+		north, ok := connectedCity.connections["north"]
 		if ok {
 			line += " north=" + north
 		}
 
-		south, ok := connectedCity.Connections["south"]
+		south, ok := connectedCity.connections["south"]
 		if ok {
 			line += " south=" + south
 		}
 
-		east, ok := connectedCity.Connections["east"]
+		east, ok := connectedCity.connections["east"]
 		if ok {
 			line += " east=" + east
 		}
 
-		west, ok := connectedCity.Connections["west"]
+		west, ok := connectedCity.connections["west"]
 		if ok {
 			line += " west=" + west
 		}

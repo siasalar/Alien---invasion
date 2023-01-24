@@ -24,5 +24,3 @@ func main() {
 
 	invasion.PrintWorldMap(worldMap)
 }
-
-

@@ -10,7 +10,7 @@ func TestReadCityMapFile_ValidFilePath(t *testing.T) {
 		t.Errorf("An error occurred while reading the file: %v", err)
 	}
 
-	if cityMap["Qu-ux"].Connections["north"] != "Baz" {
+	if cityMap["Qu-ux"].connections["north"] != "Baz" {
 		t.Errorf("Error in reading the citymap")
 	}
 }

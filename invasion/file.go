@@ -29,25 +29,26 @@ func ReadWorldMapFile(path string) (WorldMap, error) {
 
 		cityName := parts[0]
 
-		// Create the city in worldMap if it doesn't exist yet
-		city, ok := worldMap[cityName]
+		// Create the city in WorldMap if it doesn't exist yet
+		c, ok := worldMap[cityName]
 		if !ok {
-			city = City{Name: cityName}
-			worldMap[cityName] = city
+			c = city{name: cityName}
+			worldMap[cityName] = c
 		}
 
 		// Parse the city's connections
-		city.Connections = make(map[string]string)
+		c.connections = make(map[string]string)
+
 		for _, connection := range parts[1:] {
 			dirAndCity := strings.Split(connection, "=")
 			direction := dirAndCity[0]
 			connectedCityName := dirAndCity[1]
 
 			// Add the connection to the current city
-			city.Connections[direction] = connectedCityName
+			c.connections[direction] = connectedCityName
 
 			// Add the city to city map
-			worldMap[cityName] = city
+			worldMap[cityName] = c
 		}
 	}
 
