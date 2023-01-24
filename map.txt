@@ -1,5 +1,14 @@
-Foo north=Bar west=Baz south=Qu-ux
-Bar south=Foo west=Bee
-Baz east=Foo north=Qu-ux
-Qu-ux north=Baz south=Foo
-Bee east=Bar
+City2 west=City1 east=City3 south=City5
+City3 west=City2 south=City6
+City4 north=City1 east=City5 south=City7
+City5 north=City2 east=City6 south=City8 west=City4
+City6 north=City2 south=City9 west=City5
+City7 north=City4 east=City8 south=City10
+City8 north=City5 east=City9 south=City11 west=City7
+City9 north=City6 south=City12 west=City8
+City10 north=City7 east=City11 south=City13
+City11 north=City8 east=City12 south=City14 west=City10
+City12 north=City9 south=City15 west=City11
+City13 north=City10 east=City14
+City14 north=City11 east=City15 west=City13
+City15 north=City12 west=City14
