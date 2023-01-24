@@ -22,20 +22,7 @@ type Alien struct {
 }
 
 func Run(worldMap WorldMap, numAliens, movementThresh int) {
-	// Create the aliens and randomly place them on the map
-	aliens := make([]Alien, numAliens)
-	for i := 0; i < numAliens; i++ {
-		var cityNames []string
-		for cityName := range worldMap {
-			cityNames = append(cityNames, cityName)
-		}
-
-		rand.Seed(time.Now().UnixNano())
-		aliens[i] = Alien{
-			CurrentCity: worldMap[cityNames[rand.Intn(len(cityNames))]],
-			IsAlive:     true,
-		}
-	}
+	aliens := createAliens(worldMap, numAliens)
 
 	// Run the simulation until all aliens are destroyed or each alien has moved at least 10000 times
 	counter := movementThresh
@@ -46,21 +33,8 @@ func Run(worldMap WorldMap, numAliens, movementThresh int) {
 		}
 		counter--
 
-		// Move each alien randomly
-		for i, alien := range aliens {
-			if alien.IsAlive {
-				possibleDirections := getListOfPossibleDirections(alien, worldMap)
-
-				// Move the alien to a randInt direction
-				if len(possibleDirections) < 1 {
-					log.Printf("Alien %d is trapped and cannot move", i)
-					return
-				}
-
-				rand.Seed(time.Now().UnixNano())
-				nextCity := possibleDirections[rand.Intn(len(possibleDirections))]
-				alien.CurrentCity.Name = nextCity
-			}
+		if isAlive := moveAliens(worldMap, aliens); !isAlive {
+			return
 		}
 
 		// Check for alien fights
@@ -89,6 +63,47 @@ func Run(worldMap WorldMap, numAliens, movementThresh int) {
 	}
 }
 
+// moveAliens Move each alien randomly
+func moveAliens(worldMap WorldMap, aliens []Alien) bool {
+	for i, alien := range aliens {
+		if alien.IsAlive {
+			possibleDirections := getListOfPossibleDirections(alien, worldMap)
+
+			// Move the alien to a randInt direction
+			if len(possibleDirections) < 1 {
+				log.Printf("Alien %d is trapped and cannot move", i)
+				return false
+			}
+
+			rand.Seed(time.Now().UnixNano())
+			nextCity := possibleDirections[rand.Intn(len(possibleDirections))]
+			alien.CurrentCity.Name = nextCity
+		}
+	}
+
+	return true
+}
+
+// createAliens Create the aliens and randomly place them on the map
+func createAliens(worldMap WorldMap, numAliens int) []Alien {
+	aliens := make([]Alien, numAliens)
+	for i := 0; i < numAliens; i++ {
+		var cityNames []string
+		for cityName := range worldMap {
+			cityNames = append(cityNames, cityName)
+		}
+
+		rand.Seed(time.Now().UnixNano())
+		aliens[i] = Alien{
+			CurrentCity: worldMap[cityNames[rand.Intn(len(cityNames))]],
+			IsAlive:     true,
+		}
+	}
+
+	return aliens
+}
+
+// updateWorldMap update the world map based on destroyed city
 func updateWorldMap(worldMap WorldMap, destroyedCity City) WorldMap {
 	// find the list of the cities which their connections needs to be updated
 	var cities []string
@@ -111,6 +126,7 @@ func updateWorldMap(worldMap WorldMap, destroyedCity City) WorldMap {
 	return worldMap
 }
 
+// getListOfPossibleDirections gets the list of possible directions of a city
 func getListOfPossibleDirections(alien Alien, cityMap WorldMap) (possibleDirections []string) {
 	city := cityMap[alien.CurrentCity.Name]
 
